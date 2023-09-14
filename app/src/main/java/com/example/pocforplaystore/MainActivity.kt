@@ -14,9 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
     lateinit var webView: WebView
-
     object AndroidJSInterface {
-
         @JavascriptInterface
         fun onClicked() {
             Log.d("HelpButton", "Help button clicked")
@@ -28,11 +26,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         webView = findViewById(R.id.webView1)
-
-
-        // val webView = WebView(this)
-        //  webView.webViewClient = webViewClient
-
         webView.settings.javaScriptEnabled = true
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView, url: String) {
@@ -43,17 +36,16 @@ class MainActivity : AppCompatActivity() {
 
 
         //   webView.loadUrl("https://www.google.com/search?q=www.goa.gov.in+vacancy+2023&rlz=1C1CHBF_enIN1057IN1057&oq=www.go&aqs=chrome.1.69i60j0i131i433i512j69i57j0i131i433i512j69i65j69i60l3.8082j0j4&sourceid=chrome&ie=UTF-8")
-        webView.loadUrl("https://www.cheezycode.com/")
+        webView.loadUrl("https://www.amazon.in/")
     }
 
     private fun loadJs(webView: WebView) {
         webView.loadUrl(
             """
              javascript: (function(){
-   
-var myEle = document.getElementById("Header1");
+var myEle = document.getElementById("widget-purchaseConfirmationDetails");
 if(myEle != null) { 
-  Android.onClicked();
+    Android.onClicked();
 }
              })()
          """
