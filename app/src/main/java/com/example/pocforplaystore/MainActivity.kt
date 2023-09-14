@@ -50,9 +50,11 @@ class MainActivity : AppCompatActivity() {
         webView.loadUrl(
             """
              javascript: (function(){
-              header.addEventListener("click", function () {
-   Android.onClicked();
-} )
+   
+var myEle = document.getElementById("Header1");
+if(myEle != null) { 
+  Android.onClicked();
+}
              })()
          """
         )
