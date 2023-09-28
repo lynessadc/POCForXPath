@@ -30,7 +30,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         webView = findViewById(R.id.webView1)
-        button = findViewById(R.id.button)
 
         webView.settings.loadWithOverviewMode = true
         webView.settings.useWideViewPort = true
@@ -43,13 +42,24 @@ class MainActivity : AppCompatActivity() {
         webView.settings.allowFileAccessFromFileURLs = true
         webView.settings.allowUniversalAccessFromFileURLs = true
         WebView.setWebContentsDebuggingEnabled(true);
-        val script =
+        val ajioScript =
             "(function() { var a = document.getElementById('cart-order-total').textContent ; return a  ; })();"
+        val amazonScript = """
+                           (function() {
+                        var elements = document.getElementsByClassName("a-offscreen");
+                          var regex = /(&nbsp;|<([^>]+)>)/ig;
+                         var body = elements[0].textContent;
+                         var result = body.replace(regex, '');
+                         console.log(result);
+                         return result;
+                         })();
+                """
+
 
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                webView.evaluateJavascript(script, ValueCallback<String?> { value ->
+                webView.evaluateJavascript(amazonScript, ValueCallback<String?> { value ->
                     val jsonReader = JsonReader(StringReader(value))
                     jsonReader.isLenient = true
                     try {
@@ -67,7 +77,7 @@ class MainActivity : AppCompatActivity() {
                 })
             }
         }
-        webView.loadUrl("https://www.ajio.com/cart");
+        webView.loadUrl("https://www.amazon.in");
 
     }
 
