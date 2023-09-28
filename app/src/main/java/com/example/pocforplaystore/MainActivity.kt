@@ -1,23 +1,27 @@
 package com.example.pocforplaystore
 
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Bundle
+import android.util.JsonReader
+import android.util.JsonToken
 import android.util.Log
 import android.webkit.JavascriptInterface
+import android.webkit.ValueCallback
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-
+import java.io.IOException
+import java.io.StringReader
 
 class MainActivity : AppCompatActivity() {
     lateinit var webView: WebView
+    lateinit var button: Button
+
+
     object AndroidJSInterface {
         @JavascriptInterface
-        fun onClicked() {
-            Log.d("HelpButton", "Help button clicked")
+        fun onClicked(msg: String?) {
+            Log.d("Ordered Value ", "Ordered values is  : $msg")
         }
     }
 
@@ -26,29 +30,46 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         webView = findViewById(R.id.webView1)
+        button = findViewById(R.id.button)
+
+        webView.settings.loadWithOverviewMode = true
+        webView.settings.useWideViewPort = true
         webView.settings.javaScriptEnabled = true
+        webView.settings.domStorageEnabled = true
+        webView.settings.javaScriptCanOpenWindowsAutomatically = true
+        webView.settings.databaseEnabled = true
+        webView.settings.allowFileAccess = true
+        webView.settings.allowContentAccess = true
+        webView.settings.allowFileAccessFromFileURLs = true
+        webView.settings.allowUniversalAccessFromFileURLs = true
+        WebView.setWebContentsDebuggingEnabled(true);
+        val script =
+            "(function() { var a = document.getElementById('cart-order-total').textContent ; return a  ; })();"
+
         webView.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView, url: String) {
-                loadJs(view)
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                webView.evaluateJavascript(script, ValueCallback<String?> { value ->
+                    val jsonReader = JsonReader(StringReader(value))
+                    jsonReader.isLenient = true
+                    try {
+                        if (jsonReader.peek() != JsonToken.NULL && jsonReader.peek() == JsonToken.STRING) {
+                            val msg = jsonReader.nextString()
+                            if (msg != null) {
+                                Log.d("output", msg)
+                                AndroidJSInterface.onClicked(msg)
+                            }
+                        }
+                        jsonReader.close()
+                    } catch (e: IOException) {
+                        Log.e("Exception", "evaluateJavascript IOException : ", e)
+                    }
+                })
             }
         }
-        webView.addJavascriptInterface(AndroidJSInterface, "Android")
+        webView.loadUrl("https://www.ajio.com/cart");
 
-
-        //   webView.loadUrl("https://www.google.com/search?q=www.goa.gov.in+vacancy+2023&rlz=1C1CHBF_enIN1057IN1057&oq=www.go&aqs=chrome.1.69i60j0i131i433i512j69i57j0i131i433i512j69i65j69i60l3.8082j0j4&sourceid=chrome&ie=UTF-8")
-        webView.loadUrl("https://www.amazon.in/")
     }
 
-    private fun loadJs(webView: WebView) {
-        webView.loadUrl(
-            """
-             javascript: (function(){
-var myEle = document.getElementById("widget-purchaseConfirmationDetails");
-if(myEle != null) { 
-    Android.onClicked();
-}
-             })()
-         """
-        )
-    }
+
 }
